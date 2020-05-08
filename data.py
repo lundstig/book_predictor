@@ -51,6 +51,12 @@ def load_blurbs(filename) -> List[Book]:
             yield Book(title=title, description=description, genres=genres, isbn=isbn)
 
 
+def load_ratings(filename) -> List[Book]:
+    with open(filename) as f:
+        while isbn := f.readline().strip():
+            rating = float(f.readline().strip())
+            yield Book(isbn=isbn, avg_rating=rating)
+
 
 def merge_booklists(*booklists: List[List[Book]]) -> List[Book]:
     books = {}
@@ -64,19 +70,23 @@ def merge_booklists(*booklists: List[List[Book]]) -> List[Book]:
     return list(books.values())
 
 
-def load_books() -> List[Book]:
+def load_all_books() -> List[Book]:
     print("Loading books...")
-    books1 = load_csv('data/goodreads1.csv')
-    books2 = load_blurbs('data/blurbs.txt')
+    books1 = load_csv("data/goodreads1.csv")
+    books2 = load_blurbs("data/blurbs.txt")
+    books3 = load_ratings("data/ratings.txt")
 
-    all_books = merge_booklists(books1, books2)
+    all_books = merge_booklists(books1, books2, books3)
     print(f"Have {len(all_books):,} books in total")
+    return all_books
+
+def load_valid_books() -> List[Book]:
+    all_books = load_all_books()
     with_desc = len(list(filter(lambda book: book.description, all_books)))
     with_rating = len(list(filter(lambda book: book.avg_rating, all_books)))
     books = list(filter(lambda book: book.description and book.avg_rating, all_books))
-    print(f"There are {with_desc:,} books with desription, and {with_rating:,} books with rating")
+    print(
+        f"There are {with_desc:,} books with desription, and {with_rating:,} books with rating"
+    )
     print(f"This results in {len(books):,} valid books")
     return books
-
-
-load_books()
