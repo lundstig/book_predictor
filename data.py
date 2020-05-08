@@ -4,10 +4,11 @@ from dataclasses import dataclass
 import string
 from typing import List
 
+
 @dataclass
 class Book:
-    title: str
     isbn: str
+    title: str = None
     avg_rating: float = None
     description: str = None
     genres: str = None
@@ -29,7 +30,11 @@ def load_csv(filename: str) -> List[Book]:
     with open(filename) as f:
         reader = csv.DictReader(f, delimiter=",")
         for row in reader:
-            yield Book(title=row['title'], isbn=row['isbn13'], avg_rating=float(row['average_rating']))
+            yield Book(
+                title=row["title"],
+                isbn=row["isbn13"],
+                avg_rating=float(row["average_rating"]),
+            )
 
 
 def load_blurbs(filename) -> List[Book]:
@@ -43,9 +48,9 @@ def load_blurbs(filename) -> List[Book]:
                 genres = None
             else:
                 isbn = f.readline().strip()
-            b = Book(title=title, description=description, genres=genres, isbn=isbn)
-            # print(b)
-            yield b
+            yield Book(title=title, description=description, genres=genres, isbn=isbn)
+
+
 
 def merge_booklists(*booklists: List[List[Book]]) -> List[Book]:
     books = {}
