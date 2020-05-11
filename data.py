@@ -86,11 +86,12 @@ def load_valid_books() -> List[Book]:
     valid_description = (
         lambda book: book.description and len(filter_text(book.description)) > 0
     )
+    valid_rating = lambda book: book.avg_rating and book.avg_rating > 0.0
     all_books = load_all_books()
     with_desc = len(list(filter(valid_description, all_books)))
-    with_rating = len(list(filter(lambda book: book.avg_rating, all_books)))
+    with_rating = len(list(filter(valid_rating, all_books)))
     books = list(
-        filter(lambda book: valid_description(book) and book.avg_rating, all_books)
+        filter(lambda book: valid_description(book) and valid_rating(book), all_books)
     )
     print(
         f"There are {with_desc:,} books with description, and {with_rating:,} books with rating"
