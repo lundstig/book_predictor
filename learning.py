@@ -26,24 +26,28 @@ def rnn_train_single(rnn: RNN, x, y, learning_rate, criterion=nn.MSELoss()):
     return output, loss.item()
 
 
-def rnn_train(X, Y, learning_rate, plot_every=100):
+def rnn_train(X, Y, learning_rate, epochs):
     n_letters = prepare.n_letters()
     n_hidden = 128
 
-    rnn = RNN(n_letters, n_hidden, 1)
+    rnn = RNN(n_letters, n_hidden)
     hidden = torch.zeros(1, n_hidden)
 
     n = len(X)
     loss_history = []
     current_loss = 0
-    for i in tqdm(range(n)):
-        x = X[i]
-        y = Y[i]
-        output, loss = rnn_train_single(rnn, x, y, learning_rate)
+    count = 0
+    for epoch in range(epochs):
+        print(f"Epoch {epoch+1}/{epochs} ")
+        for i in tqdm(range(n)):
+            x = X[i]
+            y = Y[i]
+            output, loss = rnn_train_single(rnn, x, y, learning_rate)
+            print(output)
 
-        current_loss += loss
-        if (i + 1) % plot_every == 0:
-            loss_history.append(current_loss / plot_every)
-            current_loss = 0
+            current_loss += loss
+            count += 1
+        loss_history.append(current_loss / n)
+        current_loss = 0
 
     return rnn, loss_history

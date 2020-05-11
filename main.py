@@ -3,7 +3,7 @@ import learning
 import plotting
 import prepare
 
-TRAINING_PROPORTION = 0.1
+TRAINING_PROPORTION = 0.0001
 VALIDATION_PROPORTION = 0.1
 assert TRAINING_PROPORTION + VALIDATION_PROPORTION < 1
 
@@ -22,6 +22,9 @@ print(
 
 print("Building training data...")
 X, Y = prepare.data_from_books(training_books)
-rnn, loss_history = learning.rnn_train(X, Y, 0.005)
+
+learning_rate = 0.005
+print(f"Learning rate {learning_rate}")
+rnn, loss_history = learning.rnn_train(X, Y, learning_rate, epochs=20)
 
 plotting.plot_loss_history(loss_history)
