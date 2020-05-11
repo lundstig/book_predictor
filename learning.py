@@ -3,6 +3,10 @@ import torch.nn as nn
 import prepare
 from rnn import RNN
 from tqdm import tqdm
+import multiprocessing
+
+
+torch.set_num_threads(multiprocessing.cpu_count())
 
 
 def rnn_train_single(rnn: RNN, x, y, learning_rate, criterion=nn.MSELoss()):
