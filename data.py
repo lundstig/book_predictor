@@ -3,6 +3,7 @@ import csv
 from dataclasses import dataclass
 import string
 from typing import List
+from prepare import filter_text
 
 
 @dataclass
@@ -82,12 +83,17 @@ def load_all_books() -> List[Book]:
 
 
 def load_valid_books() -> List[Book]:
+    valid_description = (
+        lambda book: book.description and len(filter_text(book.description)) > 0
+    )
     all_books = load_all_books()
-    with_desc = len(list(filter(lambda book: book.description, all_books)))
+    with_desc = len(list(filter(valid_description, all_books)))
     with_rating = len(list(filter(lambda book: book.avg_rating, all_books)))
-    books = list(filter(lambda book: book.description and book.avg_rating, all_books))
+    books = list(
+        filter(lambda book: valid_description(book) and book.avg_rating, all_books)
+    )
     print(
-        f"There are {with_desc:,} books with desription, and {with_rating:,} books with rating"
+        f"There are {with_desc:,} books with description, and {with_rating:,} books with rating"
     )
     print(f"This results in {len(books):,} valid books")
     return books
