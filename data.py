@@ -80,6 +80,7 @@ def load_all_books() -> List[Book]:
     print(f"Have {len(all_books):,} books in total")
     return all_books
 
+
 def load_valid_books() -> List[Book]:
     all_books = load_all_books()
     with_desc = len(list(filter(lambda book: book.description, all_books)))
