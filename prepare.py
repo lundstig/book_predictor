@@ -10,11 +10,15 @@ def data_from_books(books):
     Y = [torch.tensor([[book.avg_rating]]) for book in books]
     return X, Y
 
+
 def get_embeddings_model():
     return fasttext.load_model("data/wiki-news-300d-1M-subword.bin")
 
+
 def description_to_tensor(model, desc):
-    return torch.cat([torch.tensor(model.get_word_vector(w)) for w in fasttext.tokenize(desc)])
+    return torch.stack(
+        [torch.tensor(model.get_word_vector(w)) for w in fasttext.tokenize(desc)]
+    )
 
 
 def build_embeddings_for_books(books, count):

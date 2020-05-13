@@ -1,7 +1,6 @@
 import learning
 import plotting
 import torch
-import time
 
 TRAINING_PROPORTION = 0.1
 VALIDATION_PROPORTION = 0.1
@@ -12,5 +11,7 @@ X = torch.load("data/X.bin")
 Y = torch.load("data/Y.bin")
 
 print(len(X))
-print(len(Y))
-time.sleep(5)
+print(X[0].shape)
+print(X[1].shape)
+print(X[2].shape)
+print(X[3].shape)

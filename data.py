@@ -82,9 +82,7 @@ def load_all_books() -> List[Book]:
 
 
 def load_valid_books() -> List[Book]:
-    valid_description = (
-        lambda book: book.description
-    )
+    valid_description = lambda book: book.description
     valid_rating = lambda book: book.avg_rating and book.avg_rating > 0.0
     all_books = load_all_books()
     with_desc = len(list(filter(valid_description, all_books)))

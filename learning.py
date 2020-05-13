@@ -26,7 +26,7 @@ def rnn_train_single(rnn: RNN, x, y, learning_rate, criterion=nn.MSELoss()):
 
 
 def rnn_train(X, Y, learning_rate, epochs):
-    n_letters = 10 #prepare.n_letters()
+    n_letters = 10  # prepare.n_letters()
     n_hidden = 128
 
     rnn = RNN(n_letters, n_hidden)
