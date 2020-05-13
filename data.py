@@ -3,7 +3,6 @@ import csv
 from dataclasses import dataclass
 import string
 from typing import List
-from prepare import filter_text
 
 
 @dataclass
@@ -84,7 +83,7 @@ def load_all_books() -> List[Book]:
 
 def load_valid_books() -> List[Book]:
     valid_description = (
-        lambda book: book.description and len(filter_text(book.description)) > 0
+        lambda book: book.description
     )
     valid_rating = lambda book: book.avg_rating and book.avg_rating > 0.0
     all_books = load_all_books()

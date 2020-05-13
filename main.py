@@ -1,30 +1,16 @@
-import data
 import learning
 import plotting
-import prepare
+import torch
+import time
 
-TRAINING_PROPORTION = 0.0001
+TRAINING_PROPORTION = 0.1
 VALIDATION_PROPORTION = 0.1
 assert TRAINING_PROPORTION + VALIDATION_PROPORTION < 1
 
-books = data.load_valid_books()
+print("Loading data...")
+X = torch.load("data/X.bin")
+Y = torch.load("data/Y.bin")
 
-training_count = int(len(books) * TRAINING_PROPORTION)
-validation_count = int(len(books) * VALIDATION_PROPORTION)
-test_count = len(books) - training_count - validation_count
-training_books = books[0:training_count]
-validation_books = books[training_count : training_count + validation_count]
-test_books = books[training_count + validation_count :]
-
-print(
-    f"Have {training_count:,} books for training, {validation_count:,} for validation and {test_count:,} for testing"
-)
-
-print("Building training data...")
-X, Y = prepare.data_from_books(training_books)
-
-learning_rate = 0.005
-print(f"Learning rate {learning_rate}")
-rnn, loss_history = learning.rnn_train(X, Y, learning_rate, epochs=20)
-
-plotting.plot_loss_history(loss_history)
+print(len(X))
+print(len(Y))
+time.sleep(5)
