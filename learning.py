@@ -73,7 +73,7 @@ def train_model(X, Y, hidden_dim, learning_rate, epochs):
 
             prediction = model(x)
             loss = loss_function(prediction, y)
-            current_loss += loss
+            current_loss += float(loss)
 
             loss.backward()
             optimizer.step()
