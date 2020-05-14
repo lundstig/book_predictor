@@ -9,6 +9,27 @@ import multiprocessing
 
 torch.set_num_threads(multiprocessing.cpu_count())
 
+class Evaluator:
+    def __init__(self, X, Y, loss_function=nn.MSELoss()):
+        self.X = X
+        self.Y = Y
+        self.loss_function = loss_function
+
+    def evaluate_model(self, model):
+        model.eval()
+        ret = self.__evaluate(lambda x: model(x))
+        model.train()
+        return ret
+
+    def evaluate_constant(self, k):
+        return self.__evaluate(lambda _: torch.tensor([[k]]))
+
+    def __evaluate(self, predict):
+        total_loss = 0
+        for x, y in zip(self.X, self.Y):
+            total_loss += float(self.loss_function(predict(x), y))
+        return total_loss/len(self.X)
+
 
 def rnn_train_single(rnn: RNN, x, y, learning_rate, criterion=nn.MSELoss()):
     hidden = rnn.init_hidden()
@@ -53,8 +74,7 @@ def rnn_train(X, Y, learning_rate, epochs):
 
     return rnn, loss_history
 
-
-def train_model(X, Y, hidden_dim, learning_rate, epochs):
+def train_model(X, Y, hidden_dim, learning_rate, epochs, evaluator=None):
     n = len(X)
     input_dim = X[0].shape[1]
 
@@ -78,6 +98,8 @@ def train_model(X, Y, hidden_dim, learning_rate, epochs):
             loss.backward()
             optimizer.step()
 
+        if not evaluator == None:
+            print("Validation loss:", evaluator.evaluate_model(model))
         loss_history.append(current_loss / n)
         current_loss = 0
 

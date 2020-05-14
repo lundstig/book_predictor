@@ -2,3 +2,6 @@ data/blurbs*
 data/description.pdf
 data/hierarchy.txt
 data/README.txt
+data/X*
+data/Y*
+__pycache__
