@@ -6,7 +6,7 @@ print("Loading data...")
 X = torch.load("data/X.bin")
 Y = torch.load("data/Y.bin")
 
-TRAINING_PROPORTION = 0.01
+TRAINING_PROPORTION = 0.2
 VALIDATION_PROPORTION = 0.1
 assert TRAINING_PROPORTION + VALIDATION_PROPORTION < 1
 
@@ -19,6 +19,15 @@ print(f"{training_count:,} training samples")
 trainingX = X[:training_count]
 trainingY = Y[:training_count]
 
+def getMeanLoss(Ys):
+    meanY = sum(Ys) / len(Ys)
+    loss = 0
+    for y in Ys:
+        loss += (y - meanY) ** 2
+    return round(float(loss / len(Ys)), 4)
+
+
+print("Loss from guessing mean: ", getMeanLoss(trainingY))
 
 model, loss_history = learning.train_model(trainingX, trainingY, 100, 0.01, 3)
 print(loss_history)
