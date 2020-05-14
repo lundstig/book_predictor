@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
+import torch.optim as optim
 from rnn import RNN
+from model import Model
 from tqdm import tqdm
 import multiprocessing
 
@@ -50,3 +52,33 @@ def rnn_train(X, Y, learning_rate, epochs):
         current_loss = 0
 
     return rnn, loss_history
+
+
+def train_model(X, Y, hidden_dim, learning_rate, epochs):
+    n = len(X)
+    input_dim = X[0].shape[1]
+
+    loss_function = nn.MSELoss()
+    model = Model(input_dim, hidden_dim)
+    optimizer = optim.SGD(model.parameters(), lr=learning_rate)
+
+    loss_history = []
+    current_loss = 0
+    for epoch in range(epochs):
+        print(f"Epoch {epoch+1}/{epochs} ")
+        for i in tqdm(range(n)):
+            x = X[i]
+            y = Y[i]
+            model.zero_grad()
+
+            prediction = model(x)
+            loss = loss_function(prediction, y)
+            current_loss += loss
+
+            loss.backward()
+            optimizer.step()
+
+        loss_history.append(current_loss / n)
+        current_loss = 0
+
+    return model, loss_history
