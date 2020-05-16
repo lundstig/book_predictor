@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from rnn import RNN
-from model import Model
+from model import Model, BatchedModel
 from tqdm import tqdm
 import multiprocessing
 
@@ -15,20 +15,32 @@ class Evaluator:
         self.Y = Y
         self.loss_function = loss_function
 
-    def evaluate_model(self, model):
+    def evaluate_model_single(self, model):
         model.eval()
-        ret = self.__evaluate(lambda x: model(x))
+        with torch.no_grad():
+            ret = self.__evaluate_single(lambda x: model(x))
+        model.train()
+        return ret
+
+    def evaluate_model_batched(self, model):
+        model.eval()
+        with torch.no_grad():
+            ret = self.__evaluate_batched(lambda x: model(x))
         model.train()
         return ret
 
     def evaluate_constant(self, k):
-        return self.__evaluate(lambda _: torch.tensor([[k]]))
+        with torch.no_grad():
+            return self.__evaluate_single(lambda _: torch.tensor([[k]]))
 
-    def __evaluate(self, predict):
+    def __evaluate_single(self, predict):
         total_loss = 0
         for x, y in zip(self.X, self.Y):
             total_loss += float(self.loss_function(predict(x), y))
         return total_loss/len(self.X)
+
+    def __evaluate_batched(self, predict):
+        return float(self.loss_function(predict(self.X), torch.tensor(self.Y)))/len(self.X)
 
 
 def rnn_train_single(rnn: RNN, x, y, learning_rate, criterion=nn.MSELoss()):
@@ -99,8 +111,47 @@ def train_model(X, Y, hidden_dim, learning_rate, epochs, evaluator=None):
             optimizer.step()
 
         if not evaluator == None:
-            print("Validation loss:", evaluator.evaluate_model(model))
-        loss_history.append(current_loss / n)
+            print("Validation loss:", evaluator.evaluate_model_single(model))
+        average_loss = current_loss / n
+        loss_history.append(average_loss)
+        print(f"Epoch {epoch} complete, current loss: {average_loss}")
+        current_loss = 0
+
+    return model, loss_history
+
+def train_model_batched(X, Y, hidden_dim, learning_rate, epochs, batch_size=10, evaluator=None):
+    n = len(X)
+    input_dim = X[0].shape[1]
+
+    batches = n//batch_size
+
+    loss_function = nn.MSELoss()
+    model = BatchedModel(input_dim, hidden_dim)
+    optimizer = optim.SGD(model.parameters(), lr=learning_rate)
+
+    loss_history = []
+    current_loss = 0
+    for epoch in range(epochs):
+        print(f"Epoch {epoch+1}/{epochs} ")
+        for batch in tqdm(range(batches)):
+            start = batch*batch_size
+            end = start+batch_size
+            x_batch = X[start:end]
+            y_batch = torch.tensor(Y[start:end])
+            model.zero_grad()
+
+            prediction = model(x_batch)
+            loss = loss_function(prediction, y_batch)
+            current_loss += float(loss)
+
+            loss.backward()
+            optimizer.step()
+
+        if not evaluator == None:
+            print("Validation loss:", evaluator.evaluate_model_batched(model))
+        average_loss = current_loss / n
+        loss_history.append(average_loss)
+        print(f"Epoch {epoch} complete, current loss: {average_loss}")
         current_loss = 0
 
     return model, loss_history
