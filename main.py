@@ -6,7 +6,7 @@ print("Loading data...")
 X = torch.load("data/X_small.bin")
 Y = torch.load("data/Y_small.bin")
 
-TRAINING_PROPORTION = 0.02
+TRAINING_PROPORTION = 0.01
 VALIDATION_PROPORTION = 0.01
 assert TRAINING_PROPORTION + VALIDATION_PROPORTION < 1
 
@@ -36,13 +36,15 @@ def getMeanLoss(Ys):
 
 print("Training loss from guessing mean: ", getMeanLoss(trainingY))
 print("Evaluator loss from guessing mean:", round(evaluator.evaluate_constant(mean(trainingY)), 4))
-model, training_loss, validation_loss = learning.train_model_batched(trainingX, trainingY, 100, 0.01, 3, evaluator=evaluator)
-print(training_loss)
-print(validation_loss)
-plotting.plot_loss_history(training_loss, validation_loss)
+model, training_loss_batched, validation_loss_batched = learning.train_model_batched(trainingX, trainingY, 100, 0.01, 3, evaluator=evaluator)
+print(training_loss_batched)
+print(validation_loss_batched)
 
 model, training_loss, validation_loss = learning.train_model(trainingX, trainingY, 100, 0.001, 3, evaluator)
 print(training_loss)
 print(validation_loss)
 torch.save(model, "data/model.bin")
-plotting.plot_loss_history(training_loss, validation_loss)
+plotting.plot_loss_history([
+  ('batched', training_loss_batched, validation_loss_batched),
+  ('single', training_loss, validation_loss),
+  ])
