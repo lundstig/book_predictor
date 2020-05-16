@@ -133,7 +133,7 @@ def train_model_batched(X, Y, hidden_dim, learning_rate, epochs, batch_size=100,
 
     batches = n//batch_size
 
-    loss_function = nn.MSELoss()
+    loss_function = nn.MSELoss(reduction='sum')
     model = BatchedModel(input_dim, hidden_dim)
     if useSGD:
         optimizer = optim.SGD(model.parameters(), lr=learning_rate)
