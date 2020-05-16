@@ -127,7 +127,7 @@ def train_model(X, Y, hidden_dim, learning_rate, epochs, evaluator=None, useSGD=
 
     return model, loss_history, validation_history
 
-def train_model_batched(X, Y, hidden_dim, learning_rate, epochs, batch_size=10, evaluator=None, useSGD=True):
+def train_model_batched(X, Y, hidden_dim, learning_rate, epochs, batch_size=100, evaluator=None, useSGD=False):
     n = len(X)
     input_dim = X[0].shape[1]
 
@@ -135,6 +135,11 @@ def train_model_batched(X, Y, hidden_dim, learning_rate, epochs, batch_size=10, 
 
     loss_function = nn.MSELoss()
     model = BatchedModel(input_dim, hidden_dim)
+    if useSGD:
+        optimizer = optim.SGD(model.parameters(), lr=learning_rate)
+    else:
+        optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+
     if useSGD:
         optimizer = optim.SGD(model.parameters(), lr=learning_rate)
     else:
