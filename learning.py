@@ -166,7 +166,7 @@ def train_model_batched(X, Y, hidden_dim, learning_rate, epochs, batch_size=100,
 
         average_loss = current_loss / n
         loss_history.append(average_loss)
-        print(f"Epoch {epoch} complete, current loss: {average_loss}")
+        print(f"Epoch {epoch+1} complete, current loss: {average_loss}")
         current_loss = 0
         if evaluator:
             val_loss = evaluator.evaluate_model_batched(model)
