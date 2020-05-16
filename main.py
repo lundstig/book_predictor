@@ -6,8 +6,8 @@ print("Loading data...")
 X = torch.load("data/X_small.bin")
 Y = torch.load("data/Y_small.bin")
 
-TRAINING_PROPORTION = 0.2
-VALIDATION_PROPORTION = 0.1
+TRAINING_PROPORTION = 0.002
+VALIDATION_PROPORTION = 0.02
 assert TRAINING_PROPORTION + VALIDATION_PROPORTION < 1
 
 total_count = len(X)
@@ -21,10 +21,11 @@ trainingY = Y[:training_count]
 
 validationX = X[training_count:][:validation_count]
 validationY = Y[training_count:][:validation_count]
-evaluator = learning.Evaluator(validationX, validationY)
+with torch.no_grad():
+    evaluator = learning.Evaluator(validationX, validationY)
 
 def mean(Ys):
-  return sum(Ys) / len(Ys)
+    return sum(Ys) / len(Ys)
 
 def getMeanLoss(Ys):
     meanY = mean(Ys)
@@ -33,8 +34,10 @@ def getMeanLoss(Ys):
         loss += (y - meanY) ** 2
     return round(float(loss / len(Ys)), 4)
 
-print("Loss from guessing mean: ", getMeanLoss(trainingY))
-print("Evaluator loss on guessing mean:", evaluator.evaluate_constant(mean(trainingY)))
-model, loss_history = learning.train_model(trainingX, trainingY, 100, 0.01, 3, evaluator)
-print(loss_history)
-plotting.plot_loss_history(loss_history)
+print("Training loss from guessing mean: ", getMeanLoss(trainingY))
+print("Evaluator loss from guessing mean:", round(evaluator.evaluate_constant(mean(trainingY)), 4))
+model, training_loss, validation_loss = learning.train_model(trainingX, trainingY, 100, 0.001, 100, evaluator)
+print(training_loss)
+print(validation_loss)
+torch.save(model, "data/model.bin")
+plotting.plot_loss_history(training_loss, validation_loss)

@@ -2,7 +2,8 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 
 
-def plot_loss_history(loss_history):
+def plot_loss_history(training_loss, validation_loss):
     plt.figure()
-    plt.plot(loss_history)
+    plt.plot(training_loss, 'b')
+    plt.plot(validation_loss, 'r')
     plt.show()

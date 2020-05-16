@@ -17,17 +17,20 @@ class Evaluator:
 
     def evaluate_model(self, model):
         model.eval()
-        ret = self.__evaluate(lambda x: model(x))
+        with torch.no_grad():
+            ret = self.__evaluate(model)
         model.train()
         return ret
 
     def evaluate_constant(self, k):
-        return self.__evaluate(lambda _: torch.tensor([[k]]))
+        with torch.no_grad():
+            return self.__evaluate(lambda _: torch.tensor([[k]]))
 
     def __evaluate(self, predict):
         total_loss = 0
-        for x, y in zip(self.X, self.Y):
-            total_loss += float(self.loss_function(predict(x), y))
+        with torch.no_grad():
+            for x, y in zip(self.X, self.Y):
+                total_loss += float(self.loss_function(predict(x), y))
         return total_loss/len(self.X)
 
 
@@ -74,15 +77,20 @@ def rnn_train(X, Y, learning_rate, epochs):
 
     return rnn, loss_history
 
-def train_model(X, Y, hidden_dim, learning_rate, epochs, evaluator=None):
+def train_model(X, Y, hidden_dim, learning_rate, epochs, evaluator=None, useSGD=True):
     n = len(X)
     input_dim = X[0].shape[1]
 
     loss_function = nn.MSELoss()
     model = Model(input_dim, hidden_dim)
-    optimizer = optim.SGD(model.parameters(), lr=learning_rate)
 
-    loss_history = []
+    if useSGD:
+        optimizer = optim.SGD(model.parameters(), lr=learning_rate)
+    else:
+        optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+
+    training_history = []
+    validation_history = []
     current_loss = 0
     for epoch in range(epochs):
         print(f"Epoch {epoch+1}/{epochs} ")
@@ -93,14 +101,17 @@ def train_model(X, Y, hidden_dim, learning_rate, epochs, evaluator=None):
 
             prediction = model(x)
             loss = loss_function(prediction, y)
-            current_loss += float(loss)
+            current_loss += float(loss) / n
 
             loss.backward()
             optimizer.step()
 
-        if not evaluator == None:
-            print("Validation loss:", evaluator.evaluate_model(model))
-        loss_history.append(current_loss / n)
+        training_history.append(current_loss)
+        print("Training loss:", current_loss)
         current_loss = 0
+        if evaluator:
+            val_loss = evaluator.evaluate_model(model)
+            print("Validation loss:", val_loss)
+            validation_history.append(val_loss)
 
-    return model, loss_history
+    return model, training_history, validation_history
