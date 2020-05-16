@@ -6,7 +6,7 @@ class Model(nn.Module):
     def __init__(self, input_dim, hidden_dim, layers=4):
         super(Model, self).__init__()
 
-        self.lstm = nn.LSTM(input_dim, hidden_dim, num_layers=layers)
+        self.lstm = nn.LSTM(input_dim, hidden_dim, num_layers=layers, dropout=0.5)
         self.lstm_to_out = nn.Linear(hidden_dim, 1)
 
     def forward(self, inp):
@@ -20,7 +20,7 @@ class BatchedModel(nn.Module):
     def __init__(self, input_dim, hidden_dim, layers=4):
         super(BatchedModel, self).__init__()
 
-        self.lstm = nn.LSTM(input_dim, hidden_dim, num_layers=layers)
+        self.lstm = nn.LSTM(input_dim, hidden_dim, num_layers=layers, dropout=0.5)
         self.lstm_to_out = nn.Linear(hidden_dim, 1)
         self.input_dim = input_dim
 
