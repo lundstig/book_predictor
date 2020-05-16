@@ -29,6 +29,10 @@ class Evaluator:
         model.train()
         return ret
 
+    def evaluate_constant(self, k):
+        with torch.no_grad():
+            return self.__evaluate_single(lambda _: k)
+
     def __evaluate_single(self, predict):
         total_loss = 0
         with torch.no_grad():
@@ -107,7 +111,7 @@ def train_model(X, Y, hidden_dim, learning_rate, epochs, evaluator=None, useSGD=
 
             prediction = model(x)
             loss = loss_function(prediction, y)
-            current_loss += float(loss) / n
+            current_loss += float(loss)
 
             loss.backward()
             optimizer.step()
@@ -123,7 +127,7 @@ def train_model(X, Y, hidden_dim, learning_rate, epochs, evaluator=None, useSGD=
 
     return model, loss_history, validation_history
 
-def train_model_batched(X, Y, hidden_dim, learning_rate, epochs, batch_size=100, evaluator=None, useSGD=False):
+def train_model_batched(X, Y, hidden_dim, learning_rate, epochs, batch_size=10, evaluator=None, useSGD=False):
     n = len(X)
     input_dim = X[0].shape[1]
 
@@ -154,6 +158,7 @@ def train_model_batched(X, Y, hidden_dim, learning_rate, epochs, batch_size=100,
             model.zero_grad()
 
             prediction = model(x_batch)
+            #print(y_batch, prediction)
             loss = loss_function(prediction, y_batch)
             current_loss += float(loss)
 

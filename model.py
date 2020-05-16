@@ -15,11 +15,11 @@ class Model(nn.Module):
         # LSTM expects 3d tensor
         inp_reshaped = inp.view(inp.shape[0], 1, -1)
         lstm_output, (h_n, c_n) = self.lstm(inp_reshaped)
-        output = self.sigmoid(self.lstm_to_out(h_n[-1]))
+        output = self.sigmoid(self.lstm_to_out(h_n[-1]))[0]
         return output
 
 class BatchedModel(nn.Module):
-    def __init__(self, input_dim, hidden_dim, output_dim=GENRES, layers=1, max_words=100):
+    def __init__(self, input_dim, hidden_dim, output_dim=GENRES, layers=4, max_words=100):
         super(BatchedModel, self).__init__()
 
         self.lstm = nn.LSTM(input_dim, hidden_dim, num_layers=layers, dropout=0.5)
