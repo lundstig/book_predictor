@@ -41,7 +41,7 @@ class Evaluator:
         return total_loss/len(self.X)
 
     def __evaluate_batched(self, predict):
-        return float(self.loss_function(predict(self.X), torch.tensor(self.Y)))/len(self.X)
+        return float(torch.mean(self.loss_function(predict(self.X), torch.tensor(self.Y))))
 
 
 def rnn_train_single(rnn: RNN, x, y, learning_rate, criterion=nn.MSELoss()):
