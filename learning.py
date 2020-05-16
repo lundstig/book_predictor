@@ -7,7 +7,7 @@ from tqdm import tqdm
 import multiprocessing
 
 
-torch.set_num_threads(multiprocessing.cpu_count() * 2)
+torch.set_num_threads(multiprocessing.cpu_count())
 
 class Evaluator:
     def __init__(self, X, Y, loss_function=nn.BCELoss(reduction="sum")):
@@ -135,10 +135,6 @@ def train_model_batched(X, Y, hidden_dim, learning_rate, epochs, batch_size=10, 
 
     loss_function = nn.BCELoss(reduction='sum')
     model = BatchedModel(input_dim, hidden_dim)
-    if useSGD:
-        optimizer = optim.SGD(model.parameters(), lr=learning_rate)
-    else:
-        optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     if useSGD:
         optimizer = optim.SGD(model.parameters(), lr=learning_rate)

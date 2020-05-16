@@ -19,7 +19,7 @@ class Model(nn.Module):
         return output
 
 class BatchedModel(nn.Module):
-    def __init__(self, input_dim, hidden_dim, output_dim=GENRES, layers=4, max_words=100):
+    def __init__(self, input_dim, hidden_dim, output_dim=GENRES, layers=1, max_words=100):
         super(BatchedModel, self).__init__()
 
         self.lstm = nn.LSTM(input_dim, hidden_dim, num_layers=layers, dropout=0.5)
