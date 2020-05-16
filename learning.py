@@ -119,7 +119,6 @@ def train_model(X, Y, hidden_dim, learning_rate, epochs, evaluator=None, useSGD=
         average_loss = current_loss / n
         loss_history.append(average_loss)
         print(f"Epoch {epoch} complete, current loss: {average_loss}")
-        loss_history.append(average_loss)
         current_loss = 0
         if evaluator:
             val_loss = evaluator.evaluate_model_single(model)
@@ -157,10 +156,12 @@ def train_model_batched(X, Y, hidden_dim, learning_rate, epochs, batch_size=10, 
             loss.backward()
             optimizer.step()
 
-        if not evaluator == None:
-            print("Validation loss:", evaluator.evaluate_model_batched(model))
         average_loss = current_loss / n
         loss_history.append(average_loss)
         print(f"Epoch {epoch} complete, current loss: {average_loss}")
         current_loss = 0
+        if evaluator:
+            val_loss = evaluator.evaluate_model_batched(model)
+            print("Validation loss:", val_loss)
+            validation_history.append(val_loss)
     return model, loss_history, validation_history
