@@ -4,4 +4,5 @@ data/hierarchy.txt
 data/README.txt
 data/X*
 data/Y*
+data/model.bin
 __pycache__
