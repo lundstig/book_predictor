@@ -3,7 +3,7 @@ import torch.nn as nn
 
 
 class Model(nn.Module):
-    def __init__(self, input_dim, hidden_dim, layers=2):
+    def __init__(self, input_dim, hidden_dim, layers=4):
         super(Model, self).__init__()
 
         self.lstm = nn.LSTM(input_dim, hidden_dim, num_layers=layers)
@@ -17,7 +17,7 @@ class Model(nn.Module):
         return output
 
 class BatchedModel(nn.Module):
-    def __init__(self, input_dim, hidden_dim, layers=2):
+    def __init__(self, input_dim, hidden_dim, layers=4):
         super(BatchedModel, self).__init__()
 
         self.lstm = nn.LSTM(input_dim, hidden_dim, num_layers=layers)

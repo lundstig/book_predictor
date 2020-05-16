@@ -8,6 +8,7 @@ Y = torch.load("data/Y_small.bin")
 
 TRAINING_PROPORTION = 0.01
 VALIDATION_PROPORTION = 0.01
+EPOCHS = 5
 assert TRAINING_PROPORTION + VALIDATION_PROPORTION < 1
 
 total_count = len(X)
@@ -36,11 +37,12 @@ def getMeanLoss(Ys):
 
 print("Training loss from guessing mean: ", getMeanLoss(trainingY))
 print("Evaluator loss from guessing mean:", round(evaluator.evaluate_constant(mean(trainingY)), 4))
-model, training_loss_batched, validation_loss_batched = learning.train_model_batched(trainingX, trainingY, 100, 0.01, 3, evaluator=evaluator)
+model, training_loss_batched, validation_loss_batched = \
+    learning.train_model_batched(trainingX, trainingY, 100, 0.01, EPOCHS, evaluator=evaluator)
 print(training_loss_batched)
 print(validation_loss_batched)
 
-model, training_loss, validation_loss = learning.train_model(trainingX, trainingY, 100, 0.001, 3, evaluator)
+model, training_loss, validation_loss = learning.train_model(trainingX, trainingY, 100, 0.001, EPOCHS, evaluator)
 print(training_loss)
 print(validation_loss)
 torch.save(model, "data/model.bin")
