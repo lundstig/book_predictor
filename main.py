@@ -4,8 +4,8 @@ import torch
 import model
 
 print("Loading data...")
-X = torch.load("data/X_small.bin")
-Y = torch.load("data/Y_small.bin")
+X = torch.load("data/X.bin")
+Y = torch.load("data/Y.bin")
 
 desc_limit = 100
 print(X[0].shape)
@@ -20,9 +20,9 @@ print("Zero:", zero_count, "of", len(Y))
 
 Y = torch.stack(Y)
 
-TRAINING_PROPORTION = 0.01
-VALIDATION_PROPORTION = 0.01
-EPOCHS=5
+TRAINING_PROPORTION = 0.5
+VALIDATION_PROPORTION = 0.1
+EPOCHS = 6
 assert TRAINING_PROPORTION + VALIDATION_PROPORTION <= 1
 
 total_count = len(X)
@@ -53,12 +53,12 @@ model, training_loss_batched, validation_loss_batched = \
 print(training_loss_batched)
 print(validation_loss_batched)
 
-model, training_loss, validation_loss = learning.train_model(trainingX, trainingY, 64, 0.01, EPOCHS, evaluator)
-print(training_loss)
-print(validation_loss)
+# model, training_loss, validation_loss = learning.train_model(trainingX, trainingY, 64, 0.01, EPOCHS, evaluator)
+# print(training_loss)
+# print(validation_loss)
 
 torch.save(model, "data/model.bin")
 plotting.plot_loss_history([
   ('batched', training_loss_batched, validation_loss_batched),
-  ('single', training_loss, validation_loss),
+  # ('single', training_loss, validation_loss),
   ])
