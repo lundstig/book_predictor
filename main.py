@@ -21,10 +21,11 @@ trainingY = Y[:training_count]
 
 validationX = X[training_count:][:validation_count]
 validationY = Y[training_count:][:validation_count]
-evaluator = learning.Evaluator(validationX, validationY)
+with torch.no_grad():
+    evaluator = learning.Evaluator(validationX, validationY)
 
 def mean(Ys):
-  return sum(Ys) / len(Ys)
+    return sum(Ys) / len(Ys)
 
 def getMeanLoss(Ys):
     meanY = mean(Ys)
@@ -33,12 +34,15 @@ def getMeanLoss(Ys):
         loss += (y - meanY) ** 2
     return round(float(loss / len(Ys)), 4)
 
-print("Loss from guessing mean: ", getMeanLoss(trainingY))
-print("Evaluator loss on guessing mean:", evaluator.evaluate_constant(mean(trainingY)))
-model, loss_history = learning.train_model_batched(trainingX, trainingY, 100, 0.01, 3, evaluator=evaluator)
-print(loss_history)
-plotting.plot_loss_history(loss_history)
+print("Training loss from guessing mean: ", getMeanLoss(trainingY))
+print("Evaluator loss from guessing mean:", round(evaluator.evaluate_constant(mean(trainingY)), 4))
+model, training_loss, validation_loss = learning.train_model_batched(trainingX, trainingY, 100, 0.01, 3, evaluator=evaluator)
+print(training_loss)
+print(validation_loss)
+plotting.plot_loss_history(training_loss, validation_loss)
 
-model, loss_history = learning.train_model(trainingX, trainingY, 100, 0.01, 3, evaluator=evaluator)
-print(loss_history)
-plotting.plot_loss_history(loss_history)
+model, training_loss, validation_loss = learning.train_model(trainingX, trainingY, 100, 0.001, 3, evaluator)
+print(training_loss)
+print(validation_loss)
+torch.save(model, "data/model.bin")
+plotting.plot_loss_history(training_loss, validation_loss)
