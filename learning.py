@@ -10,7 +10,7 @@ import multiprocessing
 torch.set_num_threads(multiprocessing.cpu_count() * 2)
 
 class Evaluator:
-    def __init__(self, X, Y, loss_function=nn.MSELoss()):
+    def __init__(self, X, Y, loss_function=nn.BCELoss(reduction="sum")):
         self.X = X
         self.Y = Y
         self.loss_function = loss_function
@@ -29,10 +29,6 @@ class Evaluator:
         model.train()
         return ret
 
-    def evaluate_constant(self, k):
-        with torch.no_grad():
-            return self.__evaluate_single(lambda _: torch.tensor([[k]]))
-
     def __evaluate_single(self, predict):
         total_loss = 0
         with torch.no_grad():
@@ -41,7 +37,7 @@ class Evaluator:
         return total_loss/len(self.X)
 
     def __evaluate_batched(self, predict):
-        return float(torch.mean(self.loss_function(predict(self.X), torch.tensor(self.Y))))
+        return float(self.loss_function(predict(self.X), self.Y)) / len(self.X)
 
 
 def rnn_train_single(rnn: RNN, x, y, learning_rate, criterion=nn.MSELoss()):
@@ -168,8 +164,8 @@ def train_model_batched(X, Y, hidden_dim, learning_rate, epochs, batch_size=100,
         loss_history.append(average_loss)
         print(f"Epoch {epoch+1} complete, current loss: {average_loss}")
         current_loss = 0
-        # if evaluator:
-        #     val_loss = evaluator.evaluate_model_batched(model)
-        #     print("Validation loss:", val_loss)
-        #     validation_history.append(val_loss)
+        if evaluator:
+            val_loss = evaluator.evaluate_model_batched(model)
+            print("Validation loss:", val_loss)
+            validation_history.append(val_loss)
     return model, loss_history, validation_history
