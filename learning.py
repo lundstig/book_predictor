@@ -7,7 +7,7 @@ from tqdm import tqdm
 import multiprocessing
 
 
-torch.set_num_threads(multiprocessing.cpu_count())
+torch.set_num_threads(multiprocessing.cpu_count() * 2)
 
 class Evaluator:
     def __init__(self, X, Y, loss_function=nn.MSELoss()):
@@ -91,7 +91,7 @@ def train_model(X, Y, hidden_dim, learning_rate, epochs, evaluator=None, useSGD=
     n = len(X)
     input_dim = X[0].shape[1]
 
-    loss_function = nn.MSELoss()
+    loss_function = nn.BCELoss()
     model = Model(input_dim, hidden_dim)
 
     if useSGD:
@@ -133,7 +133,7 @@ def train_model_batched(X, Y, hidden_dim, learning_rate, epochs, batch_size=100,
 
     batches = n//batch_size
 
-    loss_function = nn.MSELoss(reduction='sum')
+    loss_function = nn.BCELoss(reduction='sum')
     model = BatchedModel(input_dim, hidden_dim)
     if useSGD:
         optimizer = optim.SGD(model.parameters(), lr=learning_rate)
@@ -154,7 +154,7 @@ def train_model_batched(X, Y, hidden_dim, learning_rate, epochs, batch_size=100,
             start = batch*batch_size
             end = start+batch_size
             x_batch = X[start:end]
-            y_batch = torch.tensor(Y[start:end])
+            y_batch = Y[start:end]
             model.zero_grad()
 
             prediction = model(x_batch)
@@ -168,8 +168,8 @@ def train_model_batched(X, Y, hidden_dim, learning_rate, epochs, batch_size=100,
         loss_history.append(average_loss)
         print(f"Epoch {epoch+1} complete, current loss: {average_loss}")
         current_loss = 0
-        if evaluator:
-            val_loss = evaluator.evaluate_model_batched(model)
-            print("Validation loss:", val_loss)
-            validation_history.append(val_loss)
+        # if evaluator:
+        #     val_loss = evaluator.evaluate_model_batched(model)
+        #     print("Validation loss:", val_loss)
+        #     validation_history.append(val_loss)
     return model, loss_history, validation_history
