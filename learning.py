@@ -9,11 +9,19 @@ import multiprocessing
 
 torch.set_num_threads(multiprocessing.cpu_count())
 
+def get_pos_weights(Y):
+    pos_counts = torch.sum(Y, dim=0)
+    neg_counts = len(Y) - pos_counts
+    pos_weights = neg_counts / pos_counts
+    print("pos_weights:", pos_weights)
+    return pos_weights
+
+
 class Evaluator:
-    def __init__(self, X, Y, loss_function=nn.BCELoss(reduction="sum")):
+    def __init__(self, X, Y, loss_function=nn.BCEWithLogitsLoss):
         self.X = X
         self.Y = Y
-        self.loss_function = loss_function
+        self.loss_function = loss_function(reduction="sum", pos_weight=get_pos_weights(Y))
 
     def evaluate_model_single(self, model):
         model.eval()
@@ -91,7 +99,7 @@ def train_model(X, Y, hidden_dim, learning_rate, epochs, evaluator=None, useSGD=
     n = len(X)
     input_dim = X[0].shape[1]
 
-    loss_function = nn.BCELoss()
+    loss_function = nn.BCEWithLogitsLoss(pos_weight=get_pos_weights(Y))
     model = Model(input_dim, hidden_dim)
 
     if useSGD:
@@ -133,7 +141,7 @@ def train_model_batched(X, Y, hidden_dim, learning_rate, epochs, batch_size=10, 
 
     batches = n//batch_size
 
-    loss_function = nn.BCELoss(reduction='sum')
+    loss_function = nn.BCEWithLogitsLoss(reduction='sum', pos_weight=get_pos_weights(Y))
     model = BatchedModel(input_dim, hidden_dim)
 
     if useSGD:

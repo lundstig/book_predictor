@@ -9,13 +9,12 @@ class Model(nn.Module):
 
         self.lstm = nn.LSTM(input_dim, hidden_dim, num_layers=layers, dropout=0.5)
         self.lstm_to_out = nn.Linear(hidden_dim, output_dim)
-        self.sigmoid = nn.Sigmoid()
 
     def forward(self, inp):
         # LSTM expects 3d tensor
         inp_reshaped = inp.view(inp.shape[0], 1, -1)
         lstm_output, (h_n, c_n) = self.lstm(inp_reshaped)
-        output = self.sigmoid(self.lstm_to_out(h_n[-1]))[0]
+        output = self.lstm_to_out(h_n[-1])[0]
         return output
 
 class BatchedModel(nn.Module):
@@ -24,7 +23,6 @@ class BatchedModel(nn.Module):
 
         self.lstm = nn.LSTM(input_dim, hidden_dim, num_layers=layers, dropout=0.5)
         self.lstm_to_out = nn.Linear(hidden_dim, output_dim)
-        self.sigmoid = nn.Sigmoid()
 
         self.input_dim = input_dim
         self.max_words = max_words
@@ -40,6 +38,6 @@ class BatchedModel(nn.Module):
 
         lstm_output, (h_n, c_n) = self.lstm(X)
         last_hidden = h_n[-1]
-        output = self.sigmoid(self.lstm_to_out(last_hidden))
+        output = self.lstm_to_out(last_hidden)
 
         return output
