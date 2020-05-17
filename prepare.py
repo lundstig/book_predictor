@@ -22,7 +22,7 @@ def description_to_tensor(model, desc):
 
 def genres_to_tensor(s):
     s = s.lower()
-    genres = ['romance', 'young adult', 'science fiction', 'fantasy', 'history', 'mystery', 'biography']
+    genres = ['romance', 'young adult', 'science fiction', 'fantasy', 'histor', 'myster', 'biograph']
     ret = torch.zeros(len(genres))
     for i, genre in enumerate(genres):
         if genre in s:
