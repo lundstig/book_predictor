@@ -135,7 +135,7 @@ def train_model(X, Y, hidden_dim, learning_rate, epochs, evaluator=None, useSGD=
 
     return model, loss_history, validation_history
 
-def train_model_batched(X, Y, hidden_dim, learning_rate, epochs, batch_size=10, evaluator=None, useSGD=False):
+def train_model_batched(X, Y, hidden_dim, learning_rate, epochs, batch_size=10, evaluator=None, useSGD=False, tid="u_forgot"):
     n = len(X)
     input_dim = X[0].shape[1]
 
@@ -177,4 +177,5 @@ def train_model_batched(X, Y, hidden_dim, learning_rate, epochs, batch_size=10, 
             val_loss = evaluator.evaluate_model_batched(model)
             print("Validation loss:", val_loss)
             validation_history.append(val_loss)
+        torch.save(model, f"out/model_{tid}_epoch{epoch+1}.bin")
     return model, loss_history, validation_history
