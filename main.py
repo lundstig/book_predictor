@@ -20,9 +20,9 @@ print("Zero:", zero_count, "of", len(Y))
 
 Y = torch.stack(Y)
 
-TRAINING_PROPORTION = 0.5
+TRAINING_PROPORTION = 0.8
 VALIDATION_PROPORTION = 0.1
-EPOCHS = 6
+EPOCHS = 10
 assert TRAINING_PROPORTION + VALIDATION_PROPORTION <= 1
 
 total_count = len(X)
@@ -48,8 +48,14 @@ def get_average(Y):
 print("Average:", get_average(trainingY))
 print("Loss guessing average:", evaluator.evaluate_constant(get_average(trainingY)))
 
+def get_tid(lr, dims):
+    return f"lr{lr}_dims{dims}"
+
+lr = 0.001
+dims = 64
+
 model, training_loss_batched, validation_loss_batched = \
-    learning.train_model_batched(trainingX, trainingY, 64, 0.01, EPOCHS, evaluator=evaluator)
+    learning.train_model_batched(trainingX, trainingY, dims, lr, EPOCHS, evaluator=evaluator, tid=get_tid(lr, dims))
 print(training_loss_batched)
 print(validation_loss_batched)
 
@@ -57,8 +63,7 @@ print(validation_loss_batched)
 # print(training_loss)
 # print(validation_loss)
 
-torch.save(model, "data/model.bin")
 plotting.plot_loss_history([
   ('batched', training_loss_batched, validation_loss_batched),
   # ('single', training_loss, validation_loss),
-  ])
+  ], get_tid(lr, dims))

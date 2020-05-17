@@ -34,7 +34,7 @@ with torch.no_grad():
     predicted = model(testX)
     for i in range(predicted.shape[0]):
         for j in range(predicted.shape[1]):
-            guess = bool(predicted[i][j] >= 0.1)
+            guess = bool(torch.sigmoid(predicted[i][j]) >= 0.5)
             actual = bool(testY[i][j] > 0.5) # is either 0 or 1
             matrix[j][guess][actual] += 1
 
@@ -58,6 +58,6 @@ for i, m in enumerate(matrix):
     else:
         recall = -1
 
-    F1 = precision
+    F1 = precision * recall / (precision + recall)
 
-    print(f"{genres[i]}: {accuracy=:.2f} {precision=:.2f}, {recall=:.2f}")
+    print(f"{genres[i]}: {F1=:.2f} {accuracy=:.2f} {precision=:.2f}, {recall=:.2f}")

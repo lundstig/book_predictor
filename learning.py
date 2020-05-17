@@ -9,11 +9,19 @@ import multiprocessing
 
 torch.set_num_threads(multiprocessing.cpu_count())
 
+def get_pos_weights(Y):
+    pos_counts = torch.sum(Y, dim=0)
+    neg_counts = len(Y) - pos_counts
+    pos_weights = neg_counts / pos_counts
+    print("pos_weights:", pos_weights)
+    return pos_weights
+
+
 class Evaluator:
-    def __init__(self, X, Y, loss_function=nn.BCELoss(reduction="sum")):
+    def __init__(self, X, Y, loss_function=nn.BCEWithLogitsLoss):
         self.X = X
         self.Y = Y
-        self.loss_function = loss_function
+        self.loss_function = loss_function(reduction="sum", pos_weight=get_pos_weights(Y))
 
     def evaluate_model_single(self, model):
         model.eval()
@@ -91,7 +99,7 @@ def train_model(X, Y, hidden_dim, learning_rate, epochs, evaluator=None, useSGD=
     n = len(X)
     input_dim = X[0].shape[1]
 
-    loss_function = nn.BCELoss()
+    loss_function = nn.BCEWithLogitsLoss(pos_weight=get_pos_weights(Y))
     model = Model(input_dim, hidden_dim)
 
     if useSGD:
@@ -127,13 +135,13 @@ def train_model(X, Y, hidden_dim, learning_rate, epochs, evaluator=None, useSGD=
 
     return model, loss_history, validation_history
 
-def train_model_batched(X, Y, hidden_dim, learning_rate, epochs, batch_size=10, evaluator=None, useSGD=False):
+def train_model_batched(X, Y, hidden_dim, learning_rate, epochs, batch_size=10, evaluator=None, useSGD=False, tid="u_forgot"):
     n = len(X)
     input_dim = X[0].shape[1]
 
     batches = n//batch_size
 
-    loss_function = nn.BCELoss(reduction='sum')
+    loss_function = nn.BCEWithLogitsLoss(reduction='sum', pos_weight=get_pos_weights(Y))
     model = BatchedModel(input_dim, hidden_dim)
 
     if useSGD:
@@ -169,4 +177,5 @@ def train_model_batched(X, Y, hidden_dim, learning_rate, epochs, batch_size=10, 
             val_loss = evaluator.evaluate_model_batched(model)
             print("Validation loss:", val_loss)
             validation_history.append(val_loss)
+        torch.save(model, f"out/model_{tid}_epoch{epoch+1}.bin")
     return model, loss_history, validation_history
